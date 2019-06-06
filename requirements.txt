@@ -1,0 +1,5 @@
+celery
+flask
+redis
+requests==2.18.2
+ipaddress==1.0.18

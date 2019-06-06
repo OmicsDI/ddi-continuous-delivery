@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ddi-continuous-delivery
+spec:
+  selector:
+    matchLabels:
+      app: ddi-continuous-delivery
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ddi-continuous-delivery
+    spec:
+      containers:
+        - name: ddi-continuous-delivery
+          image: omicsdi/ddi-continuous-delivery:latest
+          env:
+            - name: DOCKER_HUB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: omicsdi
+                  key: docker_hub_user
+            - name: DOCKER_HUB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: omicsdi
+                  key: docker_hub_password
+            - name: CHECKOUT_DIR
+              value: /git-repo
+            - name: SECRET_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: omicsdi
+                  key: github_secret
+            - name: REDIS_ENDPOINT
+              value: redis-master
+            - name: REDIS_PORT
+              value: '6379'
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ddi-continuous-delivery
+  labels:
+    app: ddi-continuous-delivery
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: ddi-continuous-delivery

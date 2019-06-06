@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: omicsdi
+spec:
+  rules:
+  - host: cd.omicsdi.org
+    http:
+      paths:    
+        - backend:
+            serviceName: ddi-continuous-delivery
+            servicePort: 8080

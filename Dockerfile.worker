@@ -1,0 +1,37 @@
+FROM python:3.6-slim
+
+USER root
+
+RUN apt-get update && \
+apt-get -y install apt-transport-https \
+     ca-certificates \
+     curl \
+     gnupg2 \
+     software-properties-common && \
+curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
+add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
+   $(lsb_release -cs) \
+   stable" && \
+apt-get update && \
+apt-get -y install docker-ce
+
+RUN apt-get clean
+
+ENV KUBERNETES_VERSION=v1.6.6
+
+# Set up Kubernetes
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$KUBERNETES_VERSION/bin/linux/amd64/kubectl
+RUN chmod +x ./kubectl
+RUN mv ./kubectl /usr/local/bin/kubectl
+
+ENV PORT 8080
+EXPOSE $PORT
+
+COPY ./ /app/
+
+WORKDIR /app
+
+RUN pip install -r requirements.txt
+
+CMD ["celery", "worker", "-A", "app.celery", "--loglevel=info"]

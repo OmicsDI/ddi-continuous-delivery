@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ddi-continuous-delivery-worker
+spec:
+  selector:
+    matchLabels:
+      app: ddi-continuous-delivery-worker
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ddi-continuous-delivery-worker
+    spec:
+      serviceAccountName: k8s-101-role
+      containers:
+        - name: ddi-continuous-delivery-worker
+          image: omicsdi/ddi-continuous-delivery-worker:latest
+          env:
+            - name: DOCKER_HUB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: omicsdi
+                  key: docker_hub_user
+            - name: DOCKER_HUB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: omicsdi
+                  key: docker_hub_password
+            - name: CHECKOUT_DIR
+              value: /git-repo
+            - name: SECRET_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: omicsdi
+                  key: github_secret
+            - name: REDIS_ENDPOINT
+              value: redis-master
+            - name: REDIS_PORT
+              value: '6379'
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /var/run
+              name: docker-sock
+            - mountPath: /git-repo
+              name: git-repo
+      volumes:
+        - name: docker-sock
+          hostPath:
+            path: /var/run
+        - name: git-repo
+          hostPath:
+            path: /var/git-repo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ddi-continuous-delivery-worker
+  labels:
+    app: ddi-continuous-delivery-worker
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: ddi-continuous-delivery-worker
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: k8s-101-role
+subjects:
+  - kind: ServiceAccount
+    name: k8s-101-role
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8s-101-role
