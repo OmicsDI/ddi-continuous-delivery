@@ -39,6 +39,10 @@ def run_async_generic_task(arg):
     build_generic(arg)
 
 
+def get_environment(request_body):
+    return request_body['pull_request']['base']['ref']
+
+
 def verify_request():
 
     # Only POST is implemented
@@ -101,12 +105,10 @@ def verify_request():
         abort(403)
     logger.info("Passed verifying request")
 
-
-def get_environment(request_body):
-    environment = request_body['pull_request']['base']['ref']
-    if environment == 'master':
-        environment = 'prod'
-    return environment
+    env = get_environment(data)
+    if env not in branches_to_deploy:
+        logger.info('Branch %s is not suppose to be built');
+        abort(403)
 
 
 def build_frontend(request_body):
