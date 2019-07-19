@@ -2,12 +2,11 @@ import hashlib
 import hmac
 import logging
 import os
-from ipaddress import ip_network, ip_address
+from ipaddress import ip_address
 from json import dumps
 from sys import hexversion
-from celery import Celery
 
-import requests
+from celery import Celery
 from flask import Flask, abort, request
 
 from services import k8s_service
@@ -17,7 +16,7 @@ from services.git_service import checkout_code
 application = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-branches_to_deploy = ["dev", "prod"]
+branches_to_deploy = ["dev", "prod", "dataflow"]
 CHECKOUT_DIR = 'sources'
 if 'CHECKOUT_DIR' in os.environ:
     CHECKOUT_DIR = os.environ['CHECKOUT_DIR']

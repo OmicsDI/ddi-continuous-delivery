@@ -13,7 +13,9 @@ def deploy_kubernetes(environment, tag_name, k8s_dir='k8s', base_dir=''):
     command_service.run([KUBERNETES_BINARY, 'get', 'ns', environment, '||', KUBERNETES_BINARY,
                          'create', 'ns', environment])
     final_dir = join(base_dir, k8s_dir)
-
+    if not os.path.isdir(final_dir):
+        logger.info('No k8s folder exist, Ignoring deployment')
+        return
     for filename in os.listdir(final_dir):
         if filename.endswith("%s.yaml" % environment):
             file_path = join(final_dir, filename)
