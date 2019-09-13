@@ -16,7 +16,7 @@ from services.git_service import checkout_code
 application = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-branches_to_deploy = ["dev", "prod", "dataflow"]
+branches_to_deploy = [item.strip() for item in os.environ['WORKING_BRANCHES'].split(',')]
 CHECKOUT_DIR = 'sources'
 if 'CHECKOUT_DIR' in os.environ:
     CHECKOUT_DIR = os.environ['CHECKOUT_DIR']
@@ -92,6 +92,7 @@ def verify_request():
             if not str(mac.hexdigest()) == str(signature):
                 logger.info('hmac comparing failed!!!')
                 abort(403)
+
     data = request.get_json()
     if 'pull_request' not in data:
         logger.info('Not pull request\'s type')

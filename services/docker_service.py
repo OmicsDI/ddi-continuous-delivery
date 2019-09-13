@@ -20,5 +20,7 @@ def push_image(tag_name):
     logger.info("Pushing image to docker hub %s", tag_name)
     subprocess.run([DOCKER_BINARY_PATH, 'login', '-u', DOCKER_HUB_USER, '-p', DOCKER_HUB_PASSWORD])
     subprocess.run([DOCKER_BINARY_PATH, 'push', tag_name])
-    subprocess.run([DOCKER_BINARY_PATH, 'tag', tag_name, 'latest'])
-    subprocess.run([DOCKER_BINARY_PATH, 'push', 'latest'])
+    img_name = tag_name.split(':')[0]
+    latest_img_tag = img_name + ':latest'
+    subprocess.run([DOCKER_BINARY_PATH, 'tag', tag_name, latest_img_tag])
+    subprocess.run([DOCKER_BINARY_PATH, 'push', latest_img_tag])

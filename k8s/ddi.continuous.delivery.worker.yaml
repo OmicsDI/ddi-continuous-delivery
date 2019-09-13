@@ -53,19 +53,6 @@ spec:
           hostPath:
             path: /var/git-repo
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: ddi-continuous-delivery-worker
-  labels:
-    app: ddi-continuous-delivery-worker
-spec:
-  ports:
-    - port: 8080
-      targetPort: 8080
-  selector:
-    app: ddi-continuous-delivery-worker
----
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
