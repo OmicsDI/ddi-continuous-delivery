@@ -38,6 +38,8 @@ spec:
               value: redis-master
             - name: REDIS_PORT
               value: '6379'
+            - name: WORKING_BRANCHES
+              value: 'dev, prod, dataflow, hari'
           ports:
             - containerPort: 8080
           volumeMounts:
